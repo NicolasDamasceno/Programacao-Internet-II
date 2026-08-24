@@ -74,6 +74,73 @@ mini-prontuario/
 
 **O estado muda. A tela é consequência.**
 
+## Encounters (Atividade 01)
+
+O recurso `Encounter` fecha a lacuna do "só cadastra gente": agora dá para
+registrar um atendimento (`patientId`, `startedAt`, `chiefComplaint`, `notes`)
+para cada paciente, na tela `paciente.html`.
+
+### Por que a ordenação fica no SQL, não no JavaScript
+
+`GET /api/patients/:id/encounters` devolve os atendimentos com
+`ORDER BY started_at DESC` (mais recente primeiro). A ordenação foi decidida
+no SQL, e não em `Array.prototype.sort()` no frontend, por dois motivos:
+
+1. **O banco já teria que tocar em cada linha para devolvê-la** — pedir para
+   ele devolver ordenado não custa uma segunda passada, é o mesmo `SELECT`.
+   Ordenar de novo no JavaScript seria refazer um trabalho que o SQLite já fez.
+2. **Menos estado para manter certo.** Se a ordenação fosse responsabilidade
+   do frontend, toda vez que um atendimento fosse adicionado à lista em
+   memória (sem recarregar a página) alguém teria que lembrar de reordenar.
+   Deixando o banco garantir a ordem, o frontend só precisa exibir o array
+   na ordem em que chegou — uma regra de negócio a menos para errar.
+
+O mesmo raciocínio vale para o contador de atendimentos do cartão do
+paciente (Nível 3): `GET /api/patients` calcula `encounterCount` com
+`COUNT(e.id)` num `LEFT JOIN` com `encounters`, agrupado por paciente. Não
+existe uma coluna `encounter_count` guardada em `patients` — guardar um
+número que pode ficar desatualizado a cada `POST /encounters` seria abrir
+espaço para o contador mentir. Calculado na hora, ele nunca pode divergir
+do banco.
+
+### O fluxo completo, com a API
+
+O diagrama da seção anterior parava na renderização. Incluindo a chamada de
+rede — que é o `fetch` escondido dentro de `api.js` — o ciclo de criar um
+atendimento fica assim:
+
+```
+  usuário preenche o formulário
+  e clica em "Registrar atendimento"
+                │
+                ▼
+  patient-detail.js  ──chama──►  api.js               (createEncounter)
+                                     │
+                                     │ fetch POST /api/patients/:id/encounters
+                                     ▼
+                                 server.ts             (valida, grava no banco)
+                                     │
+                                     │ 201 Encounter  |  400 { error }
+                                     ▼
+  patient-detail.js  ◄──resolve/rejeita── api.js
+        │
+        │ setEncounters(...)  ou  setFormError(...)
+        ▼
+  patient-detail-state.js                              (a ação muda o estado)
+        │
+        │ notify()
+        ▼
+  patient-detail-render.js                              (a tela é redesenhada)
+        │
+        ▼
+       DOM
+```
+
+**Mesma regra de sempre:** evento vira ação, ação muda estado, estado
+notifica, render desenha. A API só entra como um detalhe de *como* a ação
+busca ou grava o dado — quem decide o que a tela mostra continua sendo o
+estado, nunca a resposta HTTP diretamente.
+
 ## As lacunas
 
 Procure por `TODO` no projeto. Elas estão numeradas na ordem em que serão resolvidas:

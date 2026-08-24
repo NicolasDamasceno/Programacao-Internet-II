@@ -16,15 +16,16 @@
 /**
  * A fonte dos dados.
  *
- * ENCONTRO 1: apontamos para um arquivo JSON estático.
- * ENCONTRO 2: trocaremos por "/api/patients" — e nada mais no
- * frontend vai precisar mudar. Guarde essa promessa.
+ * ENCONTRO 1: apontava para um arquivo JSON estático (mock/patients.json).
+ * Atividade 01 (Nível 3): trocado por "/api/patients" — a promessa que
+ * o comentário original fazia — porque o contador de atendimentos do
+ * cartão do paciente precisa de dados reais, vindos do banco.
  */
-const PATIENTS_URL = "./mock/patients.json";
+const PATIENTS_URL = "/api/patients";
 
 /**
  * Busca a lista de pacientes.
- * @returns {Promise<Array<{id:number,name:string,birthDate:string,nationalId:string,active:boolean}>>}
+ * @returns {Promise<Array<{id:number,name:string,birthDate:string,nationalId:string,active:boolean,encounterCount:number}>>}
  */
 export async function listPatients() {
   const response = await fetch(PATIENTS_URL);
@@ -71,3 +72,48 @@ export async function getPatient(id) {
    mensagem e repasse para quem chamou, em vez de inventar um
    texto genérico.
    ============================================================ */
+
+/* ============================================================
+   ATIVIDADE 01 (Nível 2) — Encounters
+   ============================================================ */
+
+/**
+ * Busca os atendimentos de um paciente.
+ * @param {number} patientId
+ * @returns {Promise<Array<{id:number,patientId:number,startedAt:string,chiefComplaint:string,notes:string|null}>>}
+ */
+export async function listEncounters(patientId) {
+  const response = await fetch(`/api/patients/${patientId}/encounters`);
+
+  if (response.status === 404) {
+    throw new Error("Paciente não encontrado.");
+  }
+  if (!response.ok) {
+    throw new Error(`Falha ao buscar os atendimentos (HTTP ${response.status})`);
+  }
+
+  return response.json();
+}
+
+/**
+ * Cria um atendimento para um paciente.
+ * @param {number} patientId
+ * @param {{startedAt:string,chiefComplaint:string,notes?:string}} encounter
+ */
+export async function createEncounter(patientId, encounter) {
+  const response = await fetch(`/api/patients/${patientId}/encounters`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(encounter),
+  });
+
+  if (!response.ok) {
+    // 400 (validação) e 404 (paciente sumiu) chegam no mesmo formato:
+    // { error: "mensagem" }. Repassamos a mensagem do backend, sem
+    // inventar um texto genérico — quem decidiu a mensagem foi a API.
+    const body = await response.json().catch(() => ({}));
+    throw new Error(body.error ?? `Falha ao criar o atendimento (HTTP ${response.status})`);
+  }
+
+  return response.json();
+}

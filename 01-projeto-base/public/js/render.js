@@ -22,7 +22,7 @@
    Escapar significa: transformar caractere de marcação em texto.
    Voltaremos a isso com calma em OWASP Top 10.
    ------------------------------------------------------------ */
-function escapeHtml(value) {
+export function escapeHtml(value) {
   return String(value)
     .replaceAll("&", "&amp;")
     .replaceAll("<", "&lt;")
@@ -31,7 +31,7 @@ function escapeHtml(value) {
 }
 
 /** 1991-03-14  ->  14/03/1991 */
-function formatDate(isoDate) {
+export function formatDate(isoDate) {
   const [year, month, day] = isoDate.split("-");
   return `${day}/${month}/${year}`;
 }
@@ -45,7 +45,9 @@ function patientCardTemplate(patient) {
   return `
     <li class="patient-card${cardModifier}">
       <div class="d-flex justify-content-between align-items-start gap-2">
-        <h2 class="patient-card__name">${escapeHtml(patient.name)}</h2>
+        <h2 class="patient-card__name">
+          <a class="patient-card__link" href="./paciente.html?id=${patient.id}">${escapeHtml(patient.name)}</a>
+        </h2>
         <span class="status-badge ${badgeModifier}">${badgeLabel}</span>
       </div>
       <p class="patient-card__meta">
@@ -53,6 +55,9 @@ function patientCardTemplate(patient) {
       </p>
       <p class="patient-card__meta patient-card__id">
         CNS ${escapeHtml(patient.nationalId)} · #${patient.id}
+      </p>
+      <p class="patient-card__meta patient-card__encounters">
+        ${patient.encounterCount} atendimento${patient.encounterCount === 1 ? "" : "s"}
       </p>
     </li>
   `;
@@ -108,24 +113,34 @@ export function renderCounter(visibleCount, totalCount, container) {
       : `${visibleCount} de ${totalCount} paciente(s)`;
 }
 
-/** Mensagem enquanto os dados não chegaram. */
+/**
+ * Mensagem enquanto os dados não chegaram.
+ * Visual diferente do erro de propósito: um spinner não assusta o
+ * usuário do jeito que uma cor de alerta assustaria.
+ */
 export function renderLoading(container) {
   container.innerHTML = `
     <li>
-      <div class="empty-state">
-        <p class="empty-state__title">Carregando…</p>
-        <p class="m-0">Buscando os pacientes.</p>
+      <div class="empty-state d-flex flex-column align-items-center gap-2">
+        <div class="spinner-border text-secondary" role="status">
+          <span class="visually-hidden">Carregando…</span>
+        </div>
+        <p class="empty-state__title m-0">Buscando os pacientes.</p>
       </div>
     </li>
   `;
 }
 
-/** Mensagem quando a comunicação falhou. */
+/**
+ * Mensagem quando a comunicação falhou.
+ * `alert-danger` (vermelho) em vez do `empty-state` cinza usado para
+ * "nada encontrado" — erro e ausência de dados não são a mesma coisa.
+ */
 export function renderError(message, container) {
   container.innerHTML = `
     <li>
-      <div class="empty-state">
-        <p class="empty-state__title">Algo deu errado</p>
+      <div class="alert alert-danger mb-0" role="alert">
+        <p class="empty-state__title m-0">Algo deu errado</p>
         <p class="m-0">${escapeHtml(message)}</p>
       </div>
     </li>

@@ -98,3 +98,24 @@ Content-Type: application/json
   "startedAt": "2026-08-17T09:30",
   "chiefComplaint": "Teste"
 }
+
+### 14. FALHA PROPOSITAL: startedAt fora do formato AAAA-MM-DDTHH:MM  -> esperado 400
+POST {{host}}/api/patients/1/encounters
+Content-Type: application/json
+
+{
+  "startedAt": "17/08/2026 09:30",
+  "chiefComplaint": "Teste de formato de data"
+}
+
+### 15. FALHA PROPOSITAL: chiefComplaint so com espacos  -> esperado 400
+POST {{host}}/api/patients/1/encounters
+Content-Type: application/json
+
+{
+  "startedAt": "2026-08-17T09:30",
+  "chiefComplaint": "     "
+}
+
+### 16. Listar atendimentos de paciente inexistente  -> esperado 404
+GET {{host}}/api/patients/9999/encounters
