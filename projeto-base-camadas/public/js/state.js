@@ -7,6 +7,7 @@ export const state = {
   patients: [],
   formError: null,
   fieldErrors: {},
+  previewUrl: null,
 };
 
 export function setPatients(patients) {
@@ -15,6 +16,18 @@ export function setPatients(patients) {
 
 export function addPatient(patient) {
   state.patients = [...state.patients, patient].sort((a, b) => a.name.localeCompare(b.name));
+}
+
+export function updatePatient(patient) {
+  state.patients = state.patients.map((existing) => (existing.id === patient.id ? patient : existing));
+}
+
+export function setPreviewUrl(url) {
+  state.previewUrl = url;
+}
+
+export function clearPreviewUrl() {
+  state.previewUrl = null;
 }
 
 export function setFormError(message, fieldErrors = {}) {

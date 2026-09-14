@@ -22,21 +22,15 @@ export async function createPatient(patient) {
   return body;
 }
 
-/**
- * ============================================================
- * TODO 14 (Encontro 2) -- upload de foto
- * ============================================================
- * export async function uploadPatientPhoto(patientId, file) {
- *   const formData = new FormData();
- *   formData.append("photo", file);
- *   const response = await fetch(`${PATIENTS_URL}/${patientId}/photo`, {
- *     method: "POST",
- *     body: formData, // SEM Content-Type manual -- o navegador
- *                      // define o boundary do multipart sozinho
- *   });
- *   const body = await response.json();
- *   if (!response.ok) throw { apiError: body };
- *   return body;
- * }
- * ============================================================
- */
+export async function uploadPatientPhoto(patientId, file) {
+  const formData = new FormData();
+  formData.append("photo", file);
+  const response = await fetch(`${PATIENTS_URL}/${patientId}/photo`, {
+    method: "POST",
+    body: formData, // SEM Content-Type manual -- o navegador
+    // define o boundary do multipart sozinho
+  });
+  const body = await response.json();
+  if (!response.ok) throw { apiError: body };
+  return body;
+}

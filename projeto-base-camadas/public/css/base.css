@@ -11,3 +11,4 @@ body { background: var(--color-bg); color: var(--color-text); font-family: syste
 .patient-card__meta { color: var(--color-muted); font-size: 0.85rem; margin: 0; }
 .form-error { color: var(--color-danger); background: var(--color-danger-soft); border-radius: var(--radius); padding: var(--space-2) var(--space-3); margin-bottom: var(--space-3); }
 .field-error { color: var(--color-danger); font-size: 0.8rem; margin-top: 2px; }
+.photo-preview { width: 72px; height: 72px; border-radius: 50%; object-fit: cover; margin-top: var(--space-2); }

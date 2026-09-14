@@ -8,6 +8,7 @@ import { state } from "./state.js";
 export function render() {
   renderFormError();
   renderPatientList();
+  renderPhotoPreview();
 }
 
 function renderFormError() {
@@ -42,13 +43,14 @@ function renderPatientList() {
   }
 }
 
-/**
- * ============================================================
- * TODO 14 (Encontro 2) -- preview de foto antes do envio
- * ============================================================
- * Uma funcao renderPhotoPreview() que le um novo campo de estado
- * (ex.: state.previewUrl, setado via URL.createObjectURL no
- * listener do <input type="file">) e mostra a imagem antes de
- * qualquer requisicao ao servidor.
- * ============================================================
- */
+function renderPhotoPreview() {
+  const container = document.getElementById("photo-preview-container");
+  container.innerHTML = "";
+  if (!state.previewUrl) return;
+
+  const img = document.createElement("img");
+  img.className = "photo-preview";
+  img.src = state.previewUrl;
+  img.alt = "Preview da foto selecionada";
+  container.appendChild(img);
+}
