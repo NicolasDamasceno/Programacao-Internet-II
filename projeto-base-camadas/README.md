@@ -5,27 +5,17 @@ camadas (Route → Controller → Service), tratamento central de erros,
 validação com Zod e upload de foto de paciente.
 
 ## Auditoria de segurança do upload de foto (Nível 3)
-
-> Preencha esta seção você mesmo. Ela deve refletir o que **você**
-> verificou manualmente no endpoint `POST /api/patients/:id/photo` — não
-> uma lista genérica. Abaixo, um roteiro de perguntas para te ajudar a
-> escrever cada item; apague as perguntas depois de responder.
-
-### O que eu verifiquei
-
-- **Tipo de arquivo**: o que acontece se eu mandar um arquivo com
-  `Content-Type` diferente de `image/jpeg`/`image/png`? Eu testei isso?
-  Qual status voltou?
-- **Tamanho**: eu de fato mandei um arquivo maior que 2MB e vi o `413`?
-  O que o corpo da resposta mostrou?
-- **Nome do arquivo salvo em disco**: eu abri a pasta `uploads/` depois de
-  um upload e conferi o nome do arquivo gerado? Ele tem alguma relação
-  com o nome original que eu enviei?
-
-### O que eu sei que ainda não está protegido
-
-Dica: pense em quem pode chamar esse endpoint hoje (existe autenticação?
-qualquer pessoa que descubra a URL pode subir uma foto para qualquer
-paciente?), e no que acontece se o `Content-Type` declarado pelo cliente
-não corresponder ao conteúdo real do arquivo (o `fileFilter` confia em
-`file.mimetype` — de onde vem esse valor, e quem o define?).
+> Ao tentar procurar um arquivo diferente de um jpeg ou png, o explorador
+> apenas deixou apenas disponível o tipo correto dos arquivos, porém o file fillter
+> realiza a verificação do tipo de arquivo enviado permitindo apenas o tipo definido
+> ser aceito no upload.
+> Uma segurança de tamanho foi implementada, ao tentar cadastrar com uma 
+> foto de 2MB ou maior, o endpoint retornou um 413 de PayLoad muito grande.
+> Uma medida de segurança é o nome que as fotos agora são salvas com nomes
+> diferentes do nome original do disco, isso evita que duas fotos de mesmo
+> nome de dois usuários diferentes e também evita nomes eviados por usuários
+> mal intencionados.
+> Isso mostra que mesmo um endpoint simples para fazer uploads de fotos deve 
+> passar por medidas de segurança das fotos enviadas e do próprio sistema.
+> Vale ressaltar que o endpoint não possue uma proteção por login ou atenticação
+> ainda porque ainda não chegamos nessa parte em nosso estudo.
