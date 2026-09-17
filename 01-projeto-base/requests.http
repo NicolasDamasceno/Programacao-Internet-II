@@ -119,3 +119,46 @@ Content-Type: application/json
 
 ### 16. Listar atendimentos de paciente inexistente  -> esperado 404
 GET {{host}}/api/patients/9999/encounters
+
+### ==========================================================
+### Camadas, erros centralizados, validação com Zod e upload
+### ==========================================================
+
+### 17. FALHA PROPOSITAL: CNS repetido -> esperado 409
+### Rode o bloco 5 e depois este.
+POST {{host}}/api/patients
+Content-Type: application/json
+
+{
+  "name": "Joana Ribeiro Alencar (duplicada)",
+  "birthDate": "1990-04-12",
+  "nationalId": "700012345678999"
+}
+
+### 18. Upload de foto do paciente (precisa de um arquivo .jpg ou .png local)
+POST {{host}}/api/patients/1/photo
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary
+
+------WebKitFormBoundary
+Content-Disposition: form-data; name="photo"; filename="foto.jpg"
+Content-Type: image/jpeg
+
+< ./caminho/para/foto.jpg
+------WebKitFormBoundary--
+
+### 19. FALHA PROPOSITAL: upload sem arquivo -> esperado 422
+POST {{host}}/api/patients/1/photo
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary
+
+------WebKitFormBoundary--
+
+### 20. FALHA PROPOSITAL: upload para paciente inexistente -> esperado 404
+POST {{host}}/api/patients/9999/photo
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary
+
+------WebKitFormBoundary
+Content-Disposition: form-data; name="photo"; filename="foto.jpg"
+Content-Type: image/jpeg
+
+< ./caminho/para/foto.jpg
+------WebKitFormBoundary--

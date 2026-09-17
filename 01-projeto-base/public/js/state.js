@@ -26,6 +26,11 @@ const state = {
   onlyActive: false,
   isLoading: true,
   errorMessage: null,
+
+  // Formulário de cadastro (independente do carregamento da lista).
+  formError: null,
+  fieldErrors: {},
+  previewUrl: null,
 };
 
 /** Quem quer ser avisado quando o estado mudar. */
@@ -113,5 +118,52 @@ export function setOnlyActive(onlyActive) {
 export function setError(message) {
   state.errorMessage = message;
   state.isLoading = false;
+  notify();
+}
+
+/**
+ * Acrescenta um paciente recém-cadastrado à lista, mantendo a
+ * ordenação alfabética que o GET /api/patients já devolve.
+ */
+export function addPatient(patient) {
+  state.patients = [...state.patients, { ...patient, encounterCount: 0 }].sort((a, b) =>
+    a.name.localeCompare(b.name)
+  );
+  notify();
+}
+
+/** Substitui um paciente da lista (ex.: depois do upload da foto). */
+export function updatePatient(patient) {
+  state.patients = state.patients.map((existing) =>
+    existing.id === patient.id ? { ...existing, ...patient } : existing
+  );
+  notify();
+}
+
+/* ------------------------------------------------------------
+   FORMULÁRIO DE CADASTRO
+   ------------------------------------------------------------ */
+
+/** Mensagem de erro do formulário (400/409 vindo do backend). */
+export function setFormError(message, fieldErrors = {}) {
+  state.formError = message;
+  state.fieldErrors = fieldErrors;
+  notify();
+}
+
+export function clearFormError() {
+  state.formError = null;
+  state.fieldErrors = {};
+  notify();
+}
+
+/** Preview local da foto escolhida, antes de qualquer envio ao servidor. */
+export function setPreviewUrl(url) {
+  state.previewUrl = url;
+  notify();
+}
+
+export function clearPreviewUrl() {
+  state.previewUrl = null;
   notify();
 }

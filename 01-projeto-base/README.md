@@ -51,9 +51,19 @@ mini-prontuario/
 │   └── mock/patients.json  usado no Encontro 1
 ├── scripts/reset-db.ts
 ├── src/
-│   ├── database.ts       conexão SQLite
-│   └── server.ts         rotas HTTP (um arquivo só, sem camadas — por enquanto)
-└── requests.http         casos de teste da API
+│   ├── database.ts          conexão SQLite
+│   ├── server.ts            monta o app e liga os routers
+│   ├── routes/              só roteamento (patients, encounters)
+│   ├── controllers/         traduz HTTP <-> domínio
+│   ├── services/            SQL + regra de negócio
+│   ├── errors/HttpError.ts  hierarquia de erros (400/404/409/422/413)
+│   ├── middlewares/
+│   │   ├── errorHandler.ts  todo erro da API sai por aqui, em um único formato
+│   │   ├── validate.ts      middleware genérico de validação Zod
+│   │   └── upload.ts        multer: nome de arquivo gerado no servidor, mimetype e tamanho
+│   └── validation/          schemas Zod de entrada
+├── uploads/                 fotos de paciente enviadas pelo endpoint de upload
+└── requests.http            casos de teste da API
 ```
 
 ## O fluxo do frontend
@@ -141,6 +151,45 @@ notifica, render desenha. A API só entra como um detalhe de *como* a ação
 busca ou grava o dado — quem decide o que a tela mostra continua sendo o
 estado, nunca a resposta HTTP diretamente.
 
+## Camadas, erros, validação e upload (Atividade C)
+
+A API foi reorganizada em `Route → Controller → Service`, seguindo o mesmo
+padrão do projeto de referência `projeto-base-camadas`:
+
+- **Route** (`src/routes/`) só roteia: liga um verbo + caminho a uma função
+  do controller (e, quando existe, a um middleware de validação/upload).
+- **Controller** (`src/controllers/`) só traduz HTTP ↔ domínio: lê `req`,
+  chama o Service, formata a resposta. Nenhuma regra de negócio mora aqui.
+- **Service** (`src/services/`) só decide: SQL, regra de negócio, tradução
+  `snake_case → camelCase`. Não conhece `req`/`res`.
+
+Todo erro passa por um único ponto — `src/middlewares/errorHandler.ts` —,
+sempre no formato:
+
+```json
+{ "error": { "message": "...", "statusCode": 404, "details": null } }
+```
+
+A criação de paciente valida a entrada com Zod (`src/validation/patients.schemas.ts`)
+antes de chegar no controller. O endpoint `POST /api/patients/:id/photo`
+aceita `image/jpeg` e `image/png` até 2MB, salvando o arquivo com um nome
+gerado pelo servidor (nunca o nome original enviado pelo cliente).
+
+### Justificativa arquitetural (Nível 3)
+
+A fronteira entre Controller e Service ficou definida por uma regra simples:
+**tudo que precisa de `req` ou `res` fica no Controller; tudo que decide algo
+sobre o dado fica no Service.** Um exemplo concreto é `patientsController.uploadPhoto`
+(`src/controllers/patients.controller.ts`): ele verifica se `request.file`
+existe e lança `UnprocessableEntityError` quando não existe — essa é uma
+checagem sobre a *requisição HTTP* (o multer preencheu `req.file` ou não),
+não sobre o domínio. Já a checagem "o paciente com este id existe?" mora em
+`patientsService.setPhoto` (`src/services/patients.service.ts`), porque essa
+é uma pergunta sobre o *dado*, que faria sentido mesmo se a foto chegasse por
+outro canal que não HTTP (uma fila, um script de importação em lote). Manter
+essa fronteira evitou duplicar a checagem de "paciente existe" em cada rota
+que toca em paciente.
+
 ## As lacunas
 
 Procure por `TODO` no projeto. Elas estão numeradas na ordem em que serão resolvidas:
@@ -151,16 +200,14 @@ Procure por `TODO` no projeto. Elas estão numeradas na ordem em que serão reso
 | `TODO RENDER-1` | `public/js/render.js` | Encontro 1 — Prática 1 |
 | `TODO STATE-2` | `public/js/state.js` | Encontro 1 — Prática 2 |
 | `TODO CSS-1` e `CSS-2` | `public/css/components.css` | Encontro 1 — Prática 3 |
-| `TODO 1` | `src/server.ts` | Encontro 2 — Prática 1 |
-| `TODO 2` / `TODO API-1` | `src/server.ts`, `public/js/api.js` | Encontro 2 — Prática 2 |
-| `TODO 3` | `src/server.ts` | Encontro 2 — Prática 3 |
 | `TODO ATIVIDADE 1` | `database/schema.sql` | Atividade extraclasse |
 
-## Regra de escopo da semana
+## Regra de escopo
 
-Nenhuma biblioteca além destas: `express`, `better-sqlite3`, `tsx`, `typescript` e o Bootstrap por CDN.
-
-Isso vale para você **e para a IA**. Se o assistente sugerir Prisma, Zod, React, `body-parser`, `dotenv` ou `cors`, ele respondeu a uma pergunta que não é a nossa.
+Além de `express`, `better-sqlite3`, `tsx`, `typescript` e Bootstrap por CDN,
+a Atividade C (camadas, erros, validação e upload) acrescenta `zod` (validação
+de entrada) e `multer` (upload de arquivo) — as duas únicas exceções, e só
+para o que está descrito nesta seção.
 
 ## Problemas comuns
 
