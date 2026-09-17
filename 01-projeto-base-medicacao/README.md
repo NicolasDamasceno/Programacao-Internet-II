@@ -19,24 +19,29 @@ Teste também <http://localhost:3000/api/health> — deve responder `{"status":"
 
 - `database/schema.sql`, `database/seed.sql`, `src/database.ts` — banco pronto, não mexa aqui
 - `public/index.html`, `public/css/*` — estrutura visual pronta
-- `src/server.ts` — só a rota de saúde
-- `public/js/*.js` — esqueletos com `PASSO N` marcando onde você escreve
+- `public/js/*.js` — camada de comunicação, estado e render do CRUD de prescrições
 
-## O que você vai construir
+## Camadas, erros e validação
 
-Siga os slides da atividade. Cada `PASSO N` no código corresponde a um passo do roteiro.
+O backend segue o mesmo padrão `Route → Controller → Service` do
+Mini-Prontuário (`projeto-base-camadas`), adaptado ao recurso `medications`:
 
-| Passo | Onde |
-|---|---|
-| 1 — Listar (backend) | `src/server.ts` |
-| 2 — Listar (frontend) | `public/js/api.js`, `state.js`, `render.js`, `app.js` |
-| 3 — Criar | `src/server.ts` + `public/js/*` |
-| 4 — Obter um | `src/server.ts` + `public/js/*` |
-| 5 — Remover | `src/server.ts` + `public/js/*` |
+- `src/routes/medications.routes.ts` — só roteamento.
+- `src/controllers/medications.controller.ts` — traduz HTTP ↔ domínio.
+- `src/services/medications.service.ts` — SQL + regra de negócio.
+- `src/errors/HttpError.ts` + `src/middlewares/errorHandler.ts` — todo erro
+  sai no formato `{ "error": { "message", "statusCode", "details" } }`.
+- `src/validation/medications.schemas.ts` + `src/middlewares/validate.ts` —
+  validação de entrada com Zod na criação de prescrição.
+
+Este painel não tem um recurso de "paciente" próprio (o nome do paciente é
+só um campo de texto), por isso não existe aqui um endpoint de upload de
+foto equivalente ao do Mini-Prontuário.
 
 ## Regra de escopo
 
-Nenhuma biblioteca além de `express`, `better-sqlite3`, `tsx`, `typescript` e Bootstrap por CDN — vale para você e para a IA.
+Além de `express`, `better-sqlite3`, `tsx`, `typescript` e Bootstrap por CDN,
+esta camada de refatoração acrescenta `zod` para validação de entrada.
 
 ## IA nesta atividade
 
