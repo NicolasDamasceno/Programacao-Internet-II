@@ -41,10 +41,14 @@ function patientCardTemplate(patient) {
   const cardModifier = patient.active ? "" : " patient-card--inactive";
   const badgeModifier = patient.active ? "status-badge--active" : "status-badge--inactive";
   const badgeLabel = patient.active ? "Ativo" : "Inativo";
+  const photoMarkup = patient.photoUrl
+    ? `<img class="patient-card__photo" src="${patient.photoUrl}" alt="" />`
+    : "";
 
   return `
     <li class="patient-card${cardModifier}">
       <div class="d-flex justify-content-between align-items-start gap-2">
+        ${photoMarkup}
         <h2 class="patient-card__name">
           <a class="patient-card__link" href="./paciente.html?id=${patient.id}">${escapeHtml(patient.name)}</a>
         </h2>
@@ -145,4 +149,27 @@ export function renderError(message, container) {
       </div>
     </li>
   `;
+}
+
+/** Mensagem de erro do formulário de cadastro (400/409), ou nada. */
+export function renderFormError(message, container) {
+  container.innerHTML = "";
+  if (!message) return;
+
+  const box = document.createElement("div");
+  box.className = "form-error";
+  box.textContent = message;
+  container.appendChild(box);
+}
+
+/** Preview local da foto escolhida, antes do envio ao servidor. */
+export function renderPhotoPreview(previewUrl, container) {
+  container.innerHTML = "";
+  if (!previewUrl) return;
+
+  const img = document.createElement("img");
+  img.className = "photo-preview";
+  img.src = previewUrl;
+  img.alt = "Preview da foto selecionada";
+  container.appendChild(img);
 }

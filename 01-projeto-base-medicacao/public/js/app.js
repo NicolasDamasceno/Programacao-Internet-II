@@ -6,7 +6,7 @@
  * ============================================================
  */
 import { listMedications, createMedication, removeMedication } from "./api.js";
-import { subscribe, getState, setMedications, addMedication ,setError, selectedMedication, removeMedicationFromState} from "./state.js";
+import { subscribe, getState, setMedications, addMedication ,setError, selectedMedication, removeMedicationFromState, setDetailError } from "./state.js";
 import { renderCounter, renderLoading, renderError, renderMedicationList, renderDetail } from "./render.js";
 
 const medicationListElement = document.querySelector("#medication-list");
@@ -21,6 +21,12 @@ const scheduledAtInput = document.querySelector("#scheduled-at-input");
 const notesInput = document.querySelector("#notes-input");
 const saveButton = document.querySelector("#save-button");
 const formFeedbackElement = document.querySelector("#form-feedback");
+
+/** Mensagem de sucesso/erro do formulário de cadastro. */
+function setFormFeedback(message, kind) {
+  formFeedbackElement.textContent = message ?? "";
+  formFeedbackElement.classList.toggle("text-danger", kind === "error");
+}
 
 /** A única função que desenha a tela inteira. */
 function renderApp(state) {
@@ -79,6 +85,7 @@ saveButton.addEventListener('click', async ()=> {
       notes: notesInput.value,
     });
     addMedication(created);
+    setFormFeedback("Prescrição cadastrada.", "success");
   } catch (error){
     setFormFeedback(error.message, "error");
   } finally {

@@ -58,20 +58,47 @@ export async function getPatient(id) {
   return response.json();
 }
 
-/* ============================================================
-   TODO API-1 (Encontro 2, Prática 2)
-   Implemente `createPatient(patient)`.
+/**
+ * Cadastra um paciente.
+ *
+ * Diferente do GET: precisa de method, headers e body. E o erro
+ * (400 de validação, 409 de CNS duplicado) chega no contrato
+ * { error: { message, statusCode, details } } -- repassamos o
+ * corpo inteiro para quem chamou, sem reescrever a mensagem, para
+ * que renderApiError (em errors.js) saiba o que desenhar.
+ * @param {{name:string,birthDate:string,nationalId:string}} patient
+ */
+export async function createPatient(patient) {
+  const response = await fetch(PATIENTS_URL, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(patient),
+  });
 
-   Precisa de três coisas que o GET não precisava:
-     1. method: "POST"
-     2. headers: { "Content-Type": "application/json" }
-     3. body: JSON.stringify(patient)
+  const body = await response.json();
+  if (!response.ok) throw { apiError: body };
+  return body;
+}
 
-   E o tratamento de erro é diferente: quando o servidor devolve
-   400, ele manda junto uma mensagem útil no corpo. Leia essa
-   mensagem e repasse para quem chamou, em vez de inventar um
-   texto genérico.
-   ============================================================ */
+/**
+ * Envia a foto de um paciente já cadastrado.
+ * @param {number} patientId
+ * @param {File} file
+ */
+export async function uploadPatientPhoto(patientId, file) {
+  const formData = new FormData();
+  formData.append("photo", file);
+
+  const response = await fetch(`${PATIENTS_URL}/${patientId}/photo`, {
+    method: "POST",
+    body: formData, // SEM Content-Type manual -- o navegador define
+    // o boundary do multipart sozinho.
+  });
+
+  const body = await response.json();
+  if (!response.ok) throw { apiError: body };
+  return body;
+}
 
 /* ============================================================
    ATIVIDADE 01 (Nível 2) — Encounters

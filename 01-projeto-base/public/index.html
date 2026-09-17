@@ -27,6 +27,33 @@
 
   <main class="container app-main">
 
+    <div id="form-error-container"></div>
+
+    <!-- ------------------------------------------------------
+         Cadastro de paciente, com upload opcional de foto.
+    ------------------------------------------------------- -->
+    <section aria-label="Novo paciente" class="mb-4">
+      <h2 class="h5 mb-3">Novo paciente</h2>
+      <form id="patient-form" class="row g-2">
+        <div class="col-12 col-md-4">
+          <input class="form-control" name="name" placeholder="Nome completo" required />
+        </div>
+        <div class="col-6 col-md-3">
+          <input class="form-control" name="birthDate" type="date" required />
+        </div>
+        <div class="col-6 col-md-3">
+          <input class="form-control" name="nationalId" placeholder="CNS" required />
+        </div>
+        <div class="col-12 col-md-2">
+          <input id="photo" class="form-control" name="photo" type="file" accept="image/jpeg,image/png" />
+        </div>
+        <div class="col-12 col-md-2">
+          <button class="btn btn-success w-100" type="submit">Cadastrar</button>
+        </div>
+        <div id="photo-preview-container" class="col-12"></div>
+      </form>
+    </section>
+
     <!-- ------------------------------------------------------
          Barra de filtros.
          Nenhum evento é registrado aqui: isso é papel do app.js.

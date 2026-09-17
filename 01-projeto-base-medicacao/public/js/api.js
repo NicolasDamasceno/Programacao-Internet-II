@@ -31,6 +31,10 @@ export async function listMedications(){
 // PASSO 3 — implemente createMedication(medication)
 //   method: "POST", headers Content-Type, body: JSON.stringify(medication)
 //   se !response.ok, leia o corpo e jogue o erro com a mensagem do servidor
+//
+// Camadas/erros: a API agora responde erro no contrato
+// { error: { message, statusCode, details } } (mesmo formato do
+// Mini-Prontuário), por isso lemos `errorBody.error.message`.
 // ============================================================
 export async function createMedication(medication){
     const response = await fetch(MEDICATIONS_URL, {
@@ -41,7 +45,7 @@ export async function createMedication(medication){
 
     if (!response.ok){
         const errorBody = await response.json();
-        throw new Error(errorBody.message);
+        throw new Error(errorBody.error.message);
     }
     return response.json();
 }

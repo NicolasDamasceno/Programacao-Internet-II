@@ -34,6 +34,28 @@
 
 
 /* ------------------------------------------------------------
+   BLOCO: form-error  (mensagem de erro do cadastro de paciente)
+   ------------------------------------------------------------ */
+.form-error {
+  color: var(--cor-alerta-escura);
+  background-color: var(--cor-alerta-suave);
+  border-radius: var(--raio-sm);
+  padding: var(--espaco-2) var(--espaco-3);
+  margin-bottom: var(--espaco-3);
+}
+
+/* ------------------------------------------------------------
+   BLOCO: photo-preview  (preview local da foto, antes do upload)
+   ------------------------------------------------------------ */
+.photo-preview {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-top: var(--espaco-2);
+}
+
+/* ------------------------------------------------------------
    BLOCO: patient-card
    ------------------------------------------------------------ */
 .patient-card {
@@ -43,6 +65,14 @@
   box-shadow: var(--sombra-1);
   padding: var(--espaco-4);
   transition: box-shadow 150ms ease;
+}
+
+.patient-card__photo {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
 }
 
 .patient-card:hover {
