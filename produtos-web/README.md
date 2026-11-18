@@ -2,6 +2,8 @@
 
 Implementação do exemplo **[Thinking in React](https://react.dev/learn/thinking-in-react)** (tabela de produtos filtrável) com **Vite + React + TypeScript** e estilização com **CSS Modules**.
 
+**Deploy:** https://produtos-web-pi.vercel.app
+
 ## Estrutura (hierarquia de componentes — Passo 1 do tutorial)
 
 ```
