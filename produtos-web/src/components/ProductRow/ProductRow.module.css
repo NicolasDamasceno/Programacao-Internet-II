@@ -1,0 +1,13 @@
+.row:hover {
+  background: #f8fafc;
+}
+
+.name,
+.price {
+  padding: 6px 4px;
+  color: #1e293b;
+}
+
+.outOfStock {
+  color: #dc2626;
+}
